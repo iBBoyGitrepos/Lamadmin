@@ -1,11 +1,31 @@
 import "./datatable.scss";
 import { DataGrid } from "@mui/x-data-grid";
+// eslint-disable-next-line
 import { userColumns, userRows } from "../../datatablesource";
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../../firebase";
 
 const Datatable = () => {
-  const [data, setData] = useState(userRows);
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {   
+      const list = [];
+      try{
+        const querySnapshot = await getDocs(collection(db, "users"));
+        querySnapshot.forEach((doc) => {
+          list.push({ id: doc.id, ...doc.data()});
+        });
+        setData(list);
+        console.log(list);
+      } catch(err){
+        console.log(err)
+      }
+    };
+    fetchData();
+  }, []);
 
   const handleDelete = (id) => {
     setData(data.filter((item) => item.id !== id));
